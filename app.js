@@ -58,7 +58,7 @@ app.use('/pustakawan', pustakawan)
 app.use('/pustakawan/dashboard', pustakawanDashbaord)
 app.use('/pustakawan/tag', pustakawanTag)
 app.use('/pustakawan/kategori', pustakawanKategori)
-app.use('/pustajawab/blog', pustakawanBlog)
+app.use('/pustakawan/blog', pustakawanBlog)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

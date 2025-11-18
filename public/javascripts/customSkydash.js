@@ -72,6 +72,14 @@
         showLoading();
     });
 
+    $(document).on('click', 'a[data-loading]', function() {
+        showLoading();
+    });
+
+    $(window).on('pageshow', function() {
+        hideLoading();
+    });
+
     var pendingDeleteUrl = null;
     $(document).on('click', '.btn-delete', function() {
         pendingDeleteUrl = this.getAttribute('data-url');
@@ -217,5 +225,200 @@
         document.addEventListener('DOMContentLoaded', setupImagePreview);
     } else {
         setupImagePreview();
+    }
+})();
+
+(function() {
+    function waitForQuill(callback, attempt) {
+        var tries = typeof attempt === 'number' ? attempt : 0;
+        if (window.Quill) {
+            callback();
+            return;
+        }
+        if (tries > 40) return;
+        setTimeout(function() {
+            waitForQuill(callback, tries + 1);
+        }, 100);
+    }
+
+    function initBlogCreatePage() {
+        var form = document.getElementById('formBlog');
+        if (!form) return;
+
+        setupSumberInputs();
+        setupKategoriModal();
+        setupTagModal();
+        initQuillEditor(form);
+    }
+
+    function setupSumberInputs() {
+        var container = document.getElementById('sumberContainer');
+        var addBtn = document.getElementById('tambahSumber');
+        if (!container || !addBtn) return;
+
+        function updateDeleteButtons() {
+            var groups = container.querySelectorAll('.blog-sumber-chip');
+            var buttons = container.querySelectorAll('.btn-hapus-sumber');
+            var show = groups.length > 1;
+            buttons.forEach(function(btn) {
+                if (show) {
+                    btn.classList.remove('btn-hapus-sumber--hidden');
+                } else {
+                    btn.classList.add('btn-hapus-sumber--hidden');
+                }
+            });
+        }
+
+        addBtn.addEventListener('click', function() {
+            var group = document.createElement('div');
+            group.className = 'blog-sumber-chip';
+            group.innerHTML = '<input type="text" class="form-control" name="sumber[]" placeholder="Masukkan sumber">' +
+                '<button type="button" class="btn btn-icon btn-outline-danger btn-hapus-sumber"><i class="mdi mdi-close"></i></button>';
+            container.appendChild(group);
+            updateDeleteButtons();
+        });
+
+        container.addEventListener('click', function(e) {
+            var targetBtn = e.target.closest('.btn-hapus-sumber');
+            if (!targetBtn || !container.contains(targetBtn)) return;
+            var groups = container.querySelectorAll('.blog-sumber-chip');
+            if (groups.length <= 1) return;
+            var group = targetBtn.closest('.blog-sumber-chip');
+            if (group) {
+                group.remove();
+                updateDeleteButtons();
+            }
+        });
+
+        updateDeleteButtons();
+    }
+
+    function setupKategoriModal() {
+        // Form akan submit secara otomatis dengan action dan method yang sudah diatur di HTML
+    }
+
+    function setupTagModal() {
+        // Form akan submit secara otomatis dengan action dan method yang sudah diatur di HTML
+    }
+
+    function initQuillEditor(form) {
+        var editorEl = document.getElementById('editor');
+        var isiInput = document.getElementById('isi');
+        if (!editorEl || !isiInput) return;
+
+        waitForQuill(function() {
+            var quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: {
+                        container: [
+                            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                            [{ font: [] }],
+                            [{ size: [] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ color: [] }, { background: [] }],
+                            [{ script: 'sub' }, { script: 'super' }],
+                            [{ list: 'ordered' }, { list: 'bullet' }],
+                            [{ indent: '-1' }, { indent: '+1' }],
+                            [{ direction: 'rtl' }],
+                            [{ align: [] }],
+                            ['link', 'image', 'video', 'formula'],
+                            ['clean']
+                        ],
+                        handlers: {
+                            image: function() {
+                                var input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'image/*';
+                                input.click();
+
+                                input.onchange = function() {
+                                    var file = input.files && input.files[0];
+                                    if (!file) return;
+                                    var formData = new FormData();
+                                    formData.append('gambar', file);
+                                    fetch('/pustakawan/blog/upload-gambar', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                    .then(function(res) { return res.json(); })
+                                    .then(function(data) {
+                                        if (data.url) {
+                                            var range = quill.getSelection(true);
+                                            quill.insertEmbed(range.index, 'image', data.url);
+                                        } else {
+                                            alert('Gagal mengupload gambar');
+                                        }
+                                    })
+                                    .catch(function(err) {
+                                        console.error('Error:', err);
+                                        alert('Gagal mengupload gambar');
+                                    });
+                                };
+                            }
+                        }
+                    }
+                },
+                placeholder: 'Tulis isi blog di sini...'
+            });
+
+            quill.on('text-change', function() {
+                isiInput.value = quill.root.innerHTML;
+            });
+
+            quill.root.addEventListener('paste', function(e) {
+                var clipboardData = e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData);
+                if (!clipboardData || !clipboardData.items) return;
+                for (var i = 0; i < clipboardData.items.length; i++) {
+                    if (clipboardData.items[i].type.indexOf('image') === -1) continue;
+                    e.preventDefault();
+                    var file = clipboardData.items[i].getAsFile();
+                    if (!file) return;
+                    var formData = new FormData();
+                    formData.append('gambar', file);
+                    fetch('/pustakawan/blog/upload-gambar', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data.url) {
+                            var range = quill.getSelection(true);
+                            quill.insertEmbed(range.index, 'image', data.url);
+                        } else {
+                            alert('Gagal mengupload gambar');
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Error:', err);
+                        alert('Gagal mengupload gambar');
+                    });
+                    return;
+                }
+            });
+
+            var initialNode = document.getElementById('initialIsi');
+            var initialContent = initialNode ? (initialNode.value || initialNode.textContent || '') : '';
+            if (initialContent) {
+                quill.root.innerHTML = initialContent;
+                isiInput.value = initialContent;
+            }
+
+            form.addEventListener('submit', function(e) {
+                var content = quill.root.innerHTML;
+                if (!content || content.trim() === '' || content.trim() === '<p><br></p>') {
+                    e.preventDefault();
+                    alert('Isi blog tidak boleh kosong');
+                    return false;
+                }
+                isiInput.value = content;
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBlogCreatePage);
+    } else {
+        initBlogCreatePage();
     }
 })();
