@@ -14,12 +14,18 @@ const API = require('./routes/API')
 const manajer = require('./routes/manajer/manajer')
 const manajerDashbaord = require('./routes/manajer/dashboard')
 const manajerBlog = require('./routes/manajer/blog')
+const manajerBlogProses = require('./routes/manajer/blog-proses')
+const manajerBlogValid = require('./routes/manajer/blog-valid')
+const manajerBlogTidakValid = require('./routes/manajer/blog-tidak-valid')
 
 const pustakawan = require('./routes/pustakawan/pustakawan')
 const pustakawanDashbaord = require('./routes/pustakawan/dashboard')
 const pustakawanKategori = require('./routes/pustakawan/kategori')
 const pustakawanTag = require('./routes/pustakawan/tag')
 const pustakawanBlog = require('./routes/pustakawan/blog')
+const pustakawanBlogProses = require('./routes/pustakawan/blog-proses')
+const pustakawanBlogValid = require('./routes/pustakawan/blog-valid')
+const pustakawanBlogTidakValid = require('./routes/pustakawan/blog-tidak-valid')
 
 const app = express()
 
@@ -53,12 +59,18 @@ app.use('/API', API)
 app.use('/manajer', manajer)
 app.use('/manajer/dashboard', manajerDashbaord)
 app.use('/manajer/blog', manajerBlog)
+app.use('/manajer/blog-proses', manajerBlogProses)
+app.use('/manajer/blog-valid', manajerBlogValid)
+app.use('/manajer/blog-tidak-valid', manajerBlogTidakValid)
 
 app.use('/pustakawan', pustakawan)
 app.use('/pustakawan/dashboard', pustakawanDashbaord)
 app.use('/pustakawan/tag', pustakawanTag)
 app.use('/pustakawan/kategori', pustakawanKategori)
 app.use('/pustakawan/blog', pustakawanBlog)
+app.use('/pustakawan/blog-proses', pustakawanBlogProses)
+app.use('/pustakawan/blog-valid', pustakawanBlogValid)
+app.use('/pustakawan/blog-tidak-valid', pustakawanBlogTidakValid)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

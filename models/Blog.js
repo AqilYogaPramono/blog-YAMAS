@@ -17,7 +17,7 @@ class Blog {
         try {
             const [rows] = await connection.query(
                 'SELECT COUNT(id) AS count_all_tidak_valid FROM blog WHERE status = ?',
-                ['Tidak Valid']
+                ['Tidak-Valid']
             )
             return rows[0]
         } catch (err) {
@@ -53,7 +53,7 @@ class Blog {
         try {
             const [rows] = await connection.query(
                 'SELECT COUNT(id) AS count_all_tidak_valid FROM blog WHERE status = ? AND nama_pembuat = ?',
-                ['Tidak Valid', pegawai.nama]
+                ['Tidak-Valid', pegawai.nama]
             )
             return rows[0]
         } catch (err) {
@@ -142,6 +142,89 @@ class Blog {
                 'INSERT INTO sumber (id_blog, nama_sumber) VALUES (?, ?)',
                 [idBlog, namaSumber]
             )
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getByStatusAndPegawai(status, idPegawai, limit, offset) {
+        try {
+            const [rows] = await connection.query(
+                'SELECT id, tautan, judul, nama_pembuat, status, dibuat_pada, diverifikasi_oleh FROM blog WHERE status = ? AND id_pegawai = ? ORDER BY dibuat_pada DESC LIMIT ? OFFSET ?',
+                [status, idPegawai, limit, offset]
+            )
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async countByStatusAndPegawai(status, idPegawai) {
+        try {
+            const [rows] = await connection.query(
+                'SELECT COUNT(id) AS total FROM blog WHERE status = ? AND id_pegawai = ?',
+                [status, idPegawai]
+            )
+            return rows[0].total
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static normalizeImagePath(imagePath) {
+        if (!imagePath) {
+            return null
+        }
+
+        const trimmedPath = imagePath.trim()
+        if (/^https?:\/\//i.test(trimmedPath)) {
+            return trimmedPath
+        }
+
+        const cleanedPath = trimmedPath.replace(/^public\//i, '')
+        return cleanedPath.startsWith('/') ? cleanedPath : `/${cleanedPath}`
+    }
+
+    static async getByIdWithRelations(id, idPegawai) {
+        try {
+            const [blogRows] = await connection.query(
+                'SELECT * FROM blog WHERE id = ? AND id_pegawai = ?',
+                [id, idPegawai]
+            )
+            
+            if (blogRows.length === 0) {
+                return null
+            }
+
+            const blog = blogRows[0]
+            blog.foto_cover = Blog.normalizeImagePath(blog.foto_cover)
+
+            const [kategoriRows] = await connection.query(
+                `SELECT k.id, k.nama_kategori 
+                 FROM kategori k 
+                 INNER JOIN kategori_blog kb ON k.id = kb.id_kategori 
+                 WHERE kb.id_blog = ?`,
+                [id]
+            )
+
+            const [tagRows] = await connection.query(
+                `SELECT t.id, t.nama_tag 
+                 FROM tag t 
+                 INNER JOIN tag_blog tb ON t.id = tb.id_tag 
+                 WHERE tb.id_blog = ?`,
+                [id]
+            )
+
+            const [sumberRows] = await connection.query(
+                'SELECT nama_sumber FROM sumber WHERE id_blog = ?',
+                [id]
+            )
+
+            blog.kategori = kategoriRows
+            blog.tag = tagRows
+            blog.sumber = sumberRows.map(s => s.nama_sumber)
+
+            return blog
         } catch (err) {
             throw err
         }

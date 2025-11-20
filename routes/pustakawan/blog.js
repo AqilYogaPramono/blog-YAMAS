@@ -53,8 +53,8 @@ const deleteUploadedFile = (file) => {
 router.get('/buat', authPustakawan, async (req, res) => {
     try {
         const pegawai = await Pegawai.getNama(req.session.pegawaiId)
-        const kategori = await Kategori.getAll()
-        const tag = await Tag.getAll()
+        const kategori = await Kategori.getLatest(10)
+        const tag = await Tag.getLatest(10)
 
         res.render('pustakawan/blog/buat', {
             pegawai,
@@ -101,7 +101,7 @@ router.post('/upload-gambar', authPustakawan, upload.single('gambar'), async (re
     }
 })
 
-router.post('/create', authPustakawan, async (req, res) => {
+router.post('/create', authPustakawan, upload.single('foto_cover'), async (req, res) => {
     try {
         const {judul, ringkasan, nama_pembuat, isi, kategori, tag, sumber} = req.body
         
@@ -150,11 +150,38 @@ router.post('/create', authPustakawan, async (req, res) => {
             return res.redirect('/pustakawan/blog/buat')
         }
 
+        if (!req.file) {
+            req.flash("error", "Foto cover tidak boleh kosong")
+            req.flash('data', flashData)
+            return res.redirect('/pustakawan/blog/buat')
+        }
+
+        const allowedFormats = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+        if (!allowedFormats.includes(req.file.mimetype)) {
+            deleteUploadedFile(req.file)
+            req.flash("error", "Hanya file gambar (jpg, jpeg, png, webp) yang diizinkan")
+            req.flash('data', flashData)
+            return res.redirect('/pustakawan/blog/buat')
+        }
+
+        const inputPath = req.file.path
+        const result = await convertImageFile(inputPath)
+
+        if (!result) {
+            deleteUploadedFile(req.file)
+            req.flash("error", "Gagal memproses gambar")
+            req.flash('data', flashData)
+            return res.redirect('/pustakawan/blog/buat')
+        }
+
+        const fotoCover = '/images/blog/' + path.basename(result.outputPath)
+
         const pegawai = await Pegawai.getById(req.session.pegawaiId)
         const tautan = await Blog.generateTautan(payload.judul)
         const blogData = {
             tautan,
             judul: payload.judul,
+            foto_cover: fotoCover,
             ringkasan: payload.ringkasan,
             nama_pembuat: payload.nama_pembuat,
             isi: payload.isi,
@@ -162,8 +189,8 @@ router.post('/create', authPustakawan, async (req, res) => {
             dibuat_oleh: pegawai.nama
         }
 
-        const result = await Blog.store(blogData)
-        const idBlog = result.insertId
+        const blogResult = await Blog.store(blogData)
+        const idBlog = blogResult.insertId
 
         if (tagSelected.length) {
             await Promise.all(
@@ -187,130 +214,9 @@ router.post('/create', authPustakawan, async (req, res) => {
         return res.redirect('/pustakawan/blog')
     } catch (err) {
         console.error(err)
-        req.flash('error', "Internal Server Error")
-        return res.redirect('/pustakawan/blog/buat')
-    }
-})
-
-router.post('/kategori/create', authPustakawan, async (req, res) => {
-    try {
-        const {nama_kategori, judul, ringkasan, nama_pembuat, isi, kategori, tag, sumber} = req.body
-
-        const data = {nama_kategori}
-
-        if (!data.nama_kategori) {
-            req.flash("error", "Nama kategori tidak boleh kosong")
-            if (judul || ringkasan || nama_pembuat || isi) {
-                const flashData = {
-                    judul: judul || '',
-                    ringkasan: ringkasan || '',
-                    nama_pembuat: nama_pembuat || '',
-                    isi: isi || '',
-                    kategori: kategori || [],
-                    tag: tag || [],
-                    sumber: sumber || []
-                }
-                req.flash('data', flashData)
-            }
-            return res.redirect('/pustakawan/blog/buat')
+        if (req.file) {
+            deleteUploadedFile(req.file)
         }
-
-        if (await Kategori.checkKategoriCreate(data)) {
-            req.flash("error", "Kategori sudah dibuat")
-            if (judul || ringkasan || nama_pembuat || isi) {
-                const flashData = {
-                    judul: judul || '',
-                    ringkasan: ringkasan || '',
-                    nama_pembuat: nama_pembuat || '',
-                    isi: isi || '',
-                    kategori: kategori || [],
-                    tag: tag || [],
-                    sumber: sumber || []
-                }
-                req.flash('data', flashData)
-            }
-            return res.redirect('/pustakawan/blog/buat')
-        }
-
-        await Kategori.store(data)
-        req.flash('success', 'Kategori berhasil ditambahkan')
-        if (judul || ringkasan || nama_pembuat || isi) {
-            const flashData = {
-                judul: judul || '',
-                ringkasan: ringkasan || '',
-                nama_pembuat: nama_pembuat || '',
-                isi: isi || '',
-                kategori: kategori || [],
-                tag: tag || [],
-                sumber: sumber || []
-            }
-            req.flash('data', flashData)
-        }
-        res.redirect('/pustakawan/blog/buat')
-    } catch (err) {
-        console.error(err)
-        req.flash('error', "Internal Server Error")
-        return res.redirect('/pustakawan/blog/buat')
-    }
-})
-
-router.post('/tag/create', authPustakawan, async (req, res) => {
-    try {
-        const {nama_tag, judul, ringkasan, nama_pembuat, isi, kategori, tag, sumber} = req.body
-
-        const data = {nama_tag}
-
-        if (!data.nama_tag) {
-            req.flash("error", "Nama tag tidak boleh kosong")
-            if (judul || ringkasan || nama_pembuat || isi) {
-                const flashData = {
-                    judul: judul || '',
-                    ringkasan: ringkasan || '',
-                    nama_pembuat: nama_pembuat || '',
-                    isi: isi || '',
-                    kategori: kategori || [],
-                    tag: tag || [],
-                    sumber: sumber || []
-                }
-                req.flash('data', flashData)
-            }
-            return res.redirect('/pustakawan/blog/buat')
-        }
-
-        if (await Tag.checkTagCreate(data)) {
-            req.flash("error", "Tag sudah dibuat")
-            if (judul || ringkasan || nama_pembuat || isi) {
-                const flashData = {
-                    judul: judul || '',
-                    ringkasan: ringkasan || '',
-                    nama_pembuat: nama_pembuat || '',
-                    isi: isi || '',
-                    kategori: kategori || [],
-                    tag: tag || [],
-                    sumber: sumber || []
-                }
-                req.flash('data', flashData)
-            }
-            return res.redirect('/pustakawan/blog/buat')
-        }
-
-        await Tag.store(data)
-        req.flash('success', 'Tag berhasil ditambahkan')
-        if (judul || ringkasan || nama_pembuat || isi) {
-            const flashData = {
-                judul: judul || '',
-                ringkasan: ringkasan || '',
-                nama_pembuat: nama_pembuat || '',
-                isi: isi || '',
-                kategori: kategori || [],
-                tag: tag || [],
-                sumber: sumber || []
-            }
-            req.flash('data', flashData)
-        }
-        res.redirect('/pustakawan/blog/buat')
-    } catch (err) {
-        console.error(err)
         req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/blog/buat')
     }

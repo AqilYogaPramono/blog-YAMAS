@@ -1,0 +1,119 @@
+<%- include('../../../partials/headers/__header-dashboard.ejs', { title: 'Detail Blog Proses' }) %>
+<%- include('../../../partials/navs/__nav-side-pustakawan.ejs') %>
+<%- include('../../../partials/messages/__messages-dashboard.ejs') %>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a href="/pustakawan/blog-proses" class="btn btn-light btn-sm" data-loading>
+                        <i class="mdi mdi-arrow-left"></i> Kembali
+                    </a>
+                </div>
+
+                <div class="card blog-detail-card">
+                    <div class="card-body">
+                        <div class="blog-detail-header">
+                            <h1 class="blog-detail-title"><%= blog.judul %></h1>
+                        </div>
+
+                        <div class="blog-info-row mb-4">
+                            <div class="blog-detail-sumber blog-info-box">
+                                <span class="blog-tag-label"><i class="mdi mdi-account"></i> Nama Pembuat:</span>
+                                <p class="blog-ringkasan-text"><%= blog.nama_pembuat %></p>
+                            </div>
+
+                            <div class="blog-detail-sumber blog-info-box">
+                                <span class="blog-tag-label"><i class="mdi mdi-calendar-clock"></i> Dibuat Pada:</span>
+                                <p class="blog-ringkasan-text">
+                                    <%
+                                        const dateObj = new Date(blog.dibuat_pada);
+                                        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                        const day = dateObj.getDate();
+                                        const month = months[dateObj.getMonth()];
+                                        const year = dateObj.getFullYear();
+                                        const hours = String(dateObj.getHours()).padStart(2, '0');
+                                        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                                        const formattedDate = `${day} ${month} ${year} ${hours}:${minutes}`;
+                                    %>
+                                    <%= formattedDate %>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="blog-detail-sumber mb-4">
+                            <span class="blog-tag-label"><i class="mdi mdi-text"></i> Ringkasan:</span>
+                            <p class="blog-ringkasan-text"><%= blog.ringkasan %></p>
+                        </div>
+
+                        <% if (blog.foto_cover) { %>
+                        <div class="blog-detail-cover mb-4">
+                            <div class="blog-cover-header">
+                                <span class="blog-cover-label"><i class="mdi mdi-image"></i> Foto Cover</span>
+                            </div>
+                            <img src="<%= blog.foto_cover %>" alt="<%= blog.judul %>" class="blog-cover-image">
+                        </div>
+                        <% } %>
+
+                        <div class="blog-detail-content">
+                            <div class="blog-content-header">
+                                <span class="blog-content-label"><i class="mdi mdi-file-document"></i> Isi Blog</span>
+                            </div>
+                            <div class="blog-content-body">
+                                <%- blog.isi %>
+                            </div>
+                        </div>
+
+                        <% if (blog.kategori && blog.kategori.length > 0) { %>
+                        <div class="blog-detail-tags mb-4">
+                            <span class="blog-tag-label"><i class="mdi mdi-tag-multiple"></i> Kategori:</span>
+                            <% blog.kategori.forEach(function(kat) { %>
+                                <span class="blog-tag-item"><%= kat.nama_kategori %></span>
+                            <% }) %>
+                        </div>
+                        <% } %>
+
+                        <% if (blog.tag && blog.tag.length > 0) { %>
+                        <div class="blog-detail-tags mb-4">
+                            <span class="blog-tag-label"><i class="mdi mdi-label"></i> Tag:</span>
+                            <% blog.tag.forEach(function(t) { %>
+                                <span class="blog-tag-item"><%= t.nama_tag %></span>
+                            <% }) %>
+                        </div>
+                        <% } %>
+
+                        <% if (blog.sumber && blog.sumber.length > 0) { %>
+                        <div class="blog-detail-sumber">
+                            <span class="blog-tag-label"><i class="mdi mdi-book-open-variant"></i> Sumber:</span>
+                            <ol class="blog-sumber-list">
+                                <% blog.sumber.forEach(function(s) { %>
+                                    <li><%= s %></li>
+                                <% }) %>
+                            </ol>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-below-navbar modal-top" id="globalImagePreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pratinjau Gambar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <img id="globalImagePreviewEl" src="" alt="preview" style="width:100%;height:auto;display:block;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../../../partials/scripts/__script-dashboard.ejs') %>

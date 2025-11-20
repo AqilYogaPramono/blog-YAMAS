@@ -10,6 +10,16 @@ class Kategori {
         }
     }
 
+    static async getLatest(limit = 10) {
+        const size = Number(limit) || 10
+        try {
+            const [rows] = await connection.query(`SELECT * FROM kategori ORDER BY id DESC LIMIT ?`, [size])
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
     static async store(data) {
         try {
             const [result] = await connection.query(`INSERT INTO kategori SET ?`, [data])

@@ -22,7 +22,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Tambah Blog</h4>
-                        <form id="formBlog" action="/pustakawan/blog/create" method="POST" data-loading>
+                        <form id="formBlog" action="/pustakawan/blog/create" method="POST" enctype="multipart/form-data" data-loading>
                             <div class="form-group">
                                 <label for="judul">Judul <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="judul" name="judul" placeholder="Masukkan judul blog" value="<%= formData.judul || '' %>" required>
@@ -32,6 +32,15 @@
                             <div class="form-group">
                                 <label for="ringkasan">Ringkasan <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="ringkasan" name="ringkasan" rows="3" placeholder="Masukkan ringkasan blog" required><%= formData.ringkasan || '' %></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="foto_cover">Foto Cover <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control-file" id="foto_cover" name="foto_cover" accept="image/jpeg,image/jpg,image/png,image/webp" data-preview="previewFotoCover" required>
+                                <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP</small>
+                                <div class="mt-2">
+                                    <img id="previewFotoCover" src="#" alt="preview" style="height:300px;border-radius:8px;display:none;cursor:zoom-in;" class="img-click-preview">
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -50,18 +59,15 @@
                                 <label>Kategori</label>
                                 <div class="blog-multi-select-card">
                                     <div class="blog-multi-select-head">
-                                        <div>
-                                            <p class="mb-0 text-muted">Pilih kategori</p>
-                                        </div>
-                                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalTambahKategori">Tambah Kategori</button>
+                                        <p class="mb-0 text-muted">Pilih kategori</p>
                                     </div>
                                     <div id="kategoriList" class="blog-multi-select-grid">
                                         <% if (Array.isArray(kategori) && kategori.length) { %>
                                             <% kategori.forEach(function(item){ %>
-                                                <label class="blog-multi-option" for="kategori<%= item.id %>">
-                                                    <input type="checkbox" name="kategori[]" value="<%= item.id %>" id="kategori<%= item.id %>" <%= selectedKategori.includes(String(item.id)) ? 'checked' : '' %>>
-                                                    <span><%= item.nama_kategori %></span>
-                                                    </label>
+                                                <label class="blog-multi-option blog-multi-option--light" for="kategori<%= item.id %>">
+                                                    <input class="blog-multi-option__checkbox" type="checkbox" name="kategori[]" value="<%= item.id %>" id="kategori<%= item.id %>" <%= selectedKategori.includes(String(item.id)) ? 'checked' : '' %>>
+                                                    <span class="blog-multi-option__label"><%= item.nama_kategori %></span>
+                                                </label>
                                             <% }) %>
                                         <% } else { %>
                                             <p class="text-muted mb-0">Belum ada kategori</p>
@@ -74,18 +80,15 @@
                                 <label>Tag</label>
                                 <div class="blog-multi-select-card">
                                     <div class="blog-multi-select-head">
-                                        <div>
-                                            <p class="mb-0 text-muted">Pilih tag</p>
-                                        </div>
-                                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modalTambahTag">Tambah Tag</button>
+                                        <p class="mb-0 text-muted">Pilih tag</p>
                                     </div>
                                     <div id="tagList" class="blog-multi-select-grid">
                                         <% if (Array.isArray(tag) && tag.length) { %>
                                             <% tag.forEach(function(item){ %>
-                                                <label class="blog-multi-option" for="tag<%= item.id %>">
-                                                    <input type="checkbox" name="tag[]" value="<%= item.id %>" id="tag<%= item.id %>" <%= selectedTag.includes(String(item.id)) ? 'checked' : '' %>>
-                                                    <span><%= item.nama_tag %></span>
-                                                    </label>
+                                                <label class="blog-multi-option blog-multi-option--light" for="tag<%= item.id %>">
+                                                    <input class="blog-multi-option__checkbox" type="checkbox" name="tag[]" value="<%= item.id %>" id="tag<%= item.id %>" <%= selectedTag.includes(String(item.id)) ? 'checked' : '' %>>
+                                                    <span class="blog-multi-option__label"><%= item.nama_tag %></span>
+                                                </label>
                                             <% }) %>
                                         <% } else { %>
                                             <p class="text-muted mb-0">Belum ada tag</p>
@@ -113,7 +116,7 @@
 
                             <div class="d-flex justify-content-start mt-4 mb-2">
                                 <button type="submit" class="btn btn-primary mr-2">Simpan</button>
-                                <a href="/pustakawan/blog" class="btn btn-light" data-loading>Kembali</a>
+                                <a href="/pustakawan/blog-proses" class="btn btn-light" data-loading>Kembali</a>
                             </div>
                         </form>
                     </div>
@@ -123,51 +126,17 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalTambahKategori" tabindex="-1" role="dialog">
+<div class="modal fade modal-below-navbar modal-top" id="globalImagePreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Kategori</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
+                <h5 class="modal-title">Pratinjau Gambar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <form id="formTambahKategori">
-                    <div class="form-group">
-                        <label for="nama_kategori_modal">Nama Kategori</label>
-                        <input type="text" class="form-control" id="nama_kategori_modal" name="nama_kategori" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSimpanKategori">Simpan</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalTambahTag" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Tag</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="formTambahTag">
-                    <div class="form-group">
-                        <label for="nama_tag_modal">Nama Tag</label>
-                        <input type="text" class="form-control" id="nama_tag_modal" name="nama_tag" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSimpanTag">Simpan</button>
+            <div class="modal-body p-0">
+                <img id="globalImagePreviewEl" src="" alt="preview" style="width:100%;height:auto;display:block;">
             </div>
         </div>
     </div>
