@@ -297,6 +297,54 @@
         if (!editorEl || !isiInput) return;
 
         waitForQuill(function() {
+            var Clipboard = Quill.import('modules/clipboard');
+
+            var CustomClipboard = function(quill, options) {
+                Clipboard.call(this, quill, options);
+            };
+            CustomClipboard.prototype = Object.create(Clipboard.prototype);
+            CustomClipboard.prototype.onPaste = function(e) {
+                var clipboardData = e.clipboardData || (window.clipboardData && window.clipboardData.getData);
+                if (!clipboardData) {
+                    Clipboard.prototype.onPaste.call(this, e);
+                    return;
+                }
+                var items = clipboardData.items;
+                if (items) {
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            var file = items[i].getAsFile();
+                            if (!file) return;
+                            var formData = new FormData();
+                            formData.append('gambar', file);
+                            var quillInstance = this.quill;
+                            fetch('/pustakawan/blog/upload-gambar', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                if (data.url) {
+                                    var range = quillInstance.getSelection(true);
+                                    quillInstance.insertEmbed(range.index, 'image', data.url);
+                                } else {
+                                    alert('Gagal mengupload gambar');
+                                }
+                            })
+                            .catch(function(err) {
+                                console.error('Error:', err);
+                                alert('Gagal mengupload gambar');
+                            });
+                            return;
+                        }
+                    }
+                }
+                Clipboard.prototype.onPaste.call(this, e);
+            };
+
+            Quill.register('modules/clipboard', CustomClipboard, true);
+
             var quill = new Quill('#editor', {
                 theme: 'snow',
                 modules: {
@@ -347,6 +395,9 @@
                                 };
                             }
                         }
+                    },
+                    clipboard: {
+                        matchVisual: false
                     }
                 },
                 placeholder: 'Tulis isi blog di sini...'
@@ -356,41 +407,11 @@
                 isiInput.value = quill.root.innerHTML;
             });
 
-            quill.root.addEventListener('paste', function(e) {
-                var clipboardData = e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData);
-                if (!clipboardData || !clipboardData.items) return;
-                for (var i = 0; i < clipboardData.items.length; i++) {
-                    if (clipboardData.items[i].type.indexOf('image') === -1) continue;
-                    e.preventDefault();
-                    var file = clipboardData.items[i].getAsFile();
-                    if (!file) return;
-                    var formData = new FormData();
-                    formData.append('gambar', file);
-                    fetch('/pustakawan/blog/upload-gambar', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        if (data.url) {
-                            var range = quill.getSelection(true);
-                            quill.insertEmbed(range.index, 'image', data.url);
-                        } else {
-                            alert('Gagal mengupload gambar');
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error('Error:', err);
-                        alert('Gagal mengupload gambar');
-                    });
-                    return;
-                }
-            });
-
             var initialNode = document.getElementById('initialIsi');
             var initialContent = initialNode ? (initialNode.value || initialNode.textContent || '') : '';
             if (initialContent) {
                 quill.root.innerHTML = initialContent;
+                quill.history.clear();
                 isiInput.value = initialContent;
             }
 

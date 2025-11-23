@@ -1350,6 +1350,216 @@ nav .pagination li.page-item:not(.disabled):focus-within > a.page-link {
     padding: 0;
 }
 
+.blog-content-body .ql-align-center {
+    text-align: center;
+}
+
+.blog-content-body .ql-align-right {
+    text-align: right;
+}
+
+.blog-content-body .ql-align-justify {
+    text-align: justify;
+}
+
+.blog-content-body .ql-size-small {
+    font-size: 0.75em;
+}
+
+.blog-content-body .ql-size-large {
+    font-size: 1.5em;
+}
+
+.blog-content-body .ql-size-huge {
+    font-size: 2.5em;
+}
+
+.blog-content-body .ql-font-serif {
+    font-family: Georgia, Times New Roman, serif;
+}
+
+.blog-content-body .ql-font-monospace {
+    font-family: Monaco, Courier New, monospace;
+}
+
+.blog-content-body .ql-syntax {
+    background-color: #23241f;
+    color: #f8f8f2;
+    overflow: visible;
+}
+
+.blog-content-body .ql-direction-rtl {
+    direction: rtl;
+    text-align: inherit;
+}
+
+.blog-content-body center {
+    text-align: center;
+}
+
+.blog-content-body [align="center"] {
+    text-align: center;
+}
+
+.blog-content-body [align="right"] {
+    text-align: right;
+}
+
+.blog-content-body [align="left"] {
+    text-align: left;
+}
+
+.blog-content-body [align="justify"] {
+    text-align: justify;
+}
+
+.blog-content-body .ql-size-normal {
+    font-size: 1em;
+}
+
+.blog-content-body .ql-font-arial,
+.blog-content-body .ql-font-helvetica {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.blog-content-body .ql-font-comic-sans {
+    font-family: 'Comic Sans MS', cursive;
+}
+
+.blog-content-body .ql-font-courier-new {
+    font-family: 'Courier New', monospace;
+}
+
+.blog-content-body .ql-font-georgia {
+    font-family: Georgia, serif;
+}
+
+.blog-content-body .ql-font-impact {
+    font-family: Impact, Charcoal, sans-serif;
+}
+
+.blog-content-body .ql-font-lucida {
+    font-family: 'Lucida Console', Monaco, monospace;
+}
+
+.blog-content-body .ql-font-tahoma {
+    font-family: Tahoma, Geneva, sans-serif;
+}
+
+.blog-content-body .ql-font-times-new-roman {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.blog-content-body .ql-font-verdana {
+    font-family: Verdana, Geneva, sans-serif;
+}
+
+.blog-content-body .ql-script-sub {
+    vertical-align: sub;
+    font-size: 0.8em;
+}
+
+.blog-content-body .ql-script-super {
+    vertical-align: super;
+    font-size: 0.8em;
+}
+
+.blog-content-body .ql-indent-1 {
+    padding-left: 3em;
+}
+
+.blog-content-body .ql-indent-2 {
+    padding-left: 6em;
+}
+
+.blog-content-body .ql-indent-3 {
+    padding-left: 9em;
+}
+
+.blog-content-body .ql-indent-4 {
+    padding-left: 12em;
+}
+
+.blog-content-body .ql-indent-5 {
+    padding-left: 15em;
+}
+
+.blog-content-body .ql-indent-6 {
+    padding-left: 18em;
+}
+
+.blog-content-body .ql-indent-7 {
+    padding-left: 21em;
+}
+
+.blog-content-body .ql-indent-8 {
+    padding-left: 24em;
+}
+
+.blog-content-body .ql-video {
+    display: block;
+    max-width: 100%;
+    margin: 1.5rem 0;
+}
+
+.blog-content-body .ql-video.ql-align-center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.blog-content-body .ql-video.ql-align-right {
+    margin-left: auto;
+}
+
+.blog-content-body .ql-formula {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.blog-content-body a {
+    color: #0F8EC8;
+    text-decoration: underline;
+}
+
+.blog-content-body a:hover {
+    color: #0a6fa0;
+}
+
+.blog-content-body .ql-list[data-checked="true"],
+.blog-content-body .ql-list[data-checked="false"] {
+    pointer-events: none;
+}
+
+.blog-content-body .ql-list[data-checked="true"] > * {
+    padding-left: 1.5em;
+}
+
+.blog-content-body .ql-list[data-checked="true"] > *::before {
+    content: '\2610';
+    display: inline-block;
+    margin-right: 0.5em;
+    width: 1.2em;
+    text-align: center;
+}
+
+.blog-content-body .ql-list[data-checked="true"] > *.ql-checked::before {
+    content: '\2611';
+}
+
+.blog-verification-info-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.blog-verification-info-card--invalid {
+    background: linear-gradient(135deg, #fee2e2 0%, #ffffff 100%);
+}
+
+.blog-verification-info-card--valid {
+    background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);
+}
+
 @media (max-width: 767.98px) {
     .blog-detail-title {
         font-size: 1.5rem;
