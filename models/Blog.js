@@ -323,6 +323,93 @@ class Blog {
             throw err
         }
     }
+
+    static async getByStatus(status, limit, offset) {
+        try {
+            const [rows] = await connection.query(
+                'SELECT id, tautan, judul, nama_pembuat, status, dibuat_pada, diverifikasi_oleh FROM blog WHERE status = ? ORDER BY dibuat_pada DESC LIMIT ? OFFSET ?',
+                [status, limit, offset]
+            )
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async countByStatus(status) {
+        try {
+            const [rows] = await connection.query(
+                'SELECT COUNT(id) AS total FROM blog WHERE status = ?',
+                [status]
+            )
+            return rows[0].total
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getByIdWithRelationsForManajer(id) {
+        try {
+            const [blogRows] = await connection.query(
+                'SELECT * FROM blog WHERE id = ?',
+                [id]
+            )
+            
+            if (blogRows.length === 0) {
+                return null
+            }
+
+            const blog = blogRows[0]
+            blog.foto_cover = Blog.normalizeImagePath(blog.foto_cover)
+
+            const [kategoriRows] = await connection.query(
+                `SELECT k.id, k.nama_kategori 
+                 FROM kategori k 
+                 INNER JOIN kategori_blog kb ON k.id = kb.id_kategori 
+                 WHERE kb.id_blog = ?`,
+                [id]
+            )
+
+            const [tagRows] = await connection.query(
+                `SELECT t.id, t.nama_tag 
+                 FROM tag t 
+                 INNER JOIN tag_blog tb ON t.id = tb.id_tag 
+                 WHERE tb.id_blog = ?`,
+                [id]
+            )
+
+            const [sumberRows] = await connection.query(
+                'SELECT nama_sumber FROM sumber WHERE id_blog = ?',
+                [id]
+            )
+
+            blog.kategori = kategoriRows
+            blog.tag = tagRows
+            blog.sumber = sumberRows.map(s => s.nama_sumber)
+
+            return blog
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async updateStatus(id, status, diverifikasiOleh, catatanManajer) {
+        try {
+            const updateData = {
+                status,
+                diverifikasi_oleh: diverifikasiOleh,
+                diverifikasi_pada: new Date(),
+                catatan_manajer: catatanManajer.trim()
+            }
+
+            await connection.query(
+                'UPDATE blog SET ? WHERE id = ?',
+                [updateData, id]
+            )
+        } catch (err) {
+            throw err
+        }
+    }
 }
 
 module.exports = Blog

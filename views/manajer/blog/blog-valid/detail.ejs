@@ -10,13 +10,17 @@
                     <a href="/manajer/blog-valid" class="btn btn-light btn-sm" data-loading>
                         <i class="mdi mdi-arrow-left"></i> Kembali
                     </a>
-                    <span class="badge badge-status badge-status-active">Valid</span>
                 </div>
 
-                <div class="card mb-4 blog-verification-info-card">
+                <div class="card mb-4 blog-verification-info-card blog-verification-info-card--valid">
                     <div class="card-body">
-                        <p class="mb-2"><strong>Diverifikasi Oleh:</strong> <%= blog.diverifikasi_oleh || '-' %></p>
-                        <p class="mb-0"><strong>Catatan Manajer:</strong> <%= blog.catatan_manajer || '-' %></p>
+                        <div class="mb-3">
+                            <span class="blog-tag-label">Diverifikasi Oleh: <span class="blog-ringkasan-text"><%= blog.diverifikasi_oleh || '-' %></span></span>
+                        </div>
+                        <div>
+                            <span class="blog-tag-label">Catatan Manajer:</span>
+                            <p class="blog-ringkasan-text"><%= blog.catatan_manajer || '-' %></p>
+                        </div>
                     </div>
                 </div>
 
@@ -31,23 +35,59 @@
                                 <span class="blog-tag-label"><i class="mdi mdi-account"></i> Nama Pembuat:</span>
                                 <p class="blog-ringkasan-text"><%= blog.nama_pembuat %></p>
                             </div>
-
                             <div class="blog-detail-sumber blog-info-box">
                                 <span class="blog-tag-label"><i class="mdi mdi-calendar-clock"></i> Dibuat Pada:</span>
                                 <p class="blog-ringkasan-text">
                                     <%
-                                        const dateObj = new Date(blog.dibuat_pada);
+                                        const dateObjDibuat = new Date(blog.dibuat_pada);
                                         const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                                        const day = dateObj.getDate();
-                                        const month = months[dateObj.getMonth()];
-                                        const year = dateObj.getFullYear();
-                                        const hours = String(dateObj.getHours()).padStart(2, '0');
-                                        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-                                        const formattedDate = `${day} ${month} ${year} ${hours}:${minutes}`;
+                                        const dayDibuat = dateObjDibuat.getDate();
+                                        const monthDibuat = months[dateObjDibuat.getMonth()];
+                                        const yearDibuat = dateObjDibuat.getFullYear();
+                                        const hoursDibuat = String(dateObjDibuat.getHours()).padStart(2, '0');
+                                        const minutesDibuat = String(dateObjDibuat.getMinutes()).padStart(2, '0');
+                                        const formattedDateDibuat = `${dayDibuat} ${monthDibuat} ${yearDibuat} ${hoursDibuat}:${minutesDibuat}`;
                                     %>
-                                    <%= formattedDate %>
+                                    <%= formattedDateDibuat %>
                                 </p>
                             </div>
+                        </div>
+
+                        <div class="blog-info-row mb-4">
+                            <% if (blog.diubah_pada) { %>
+                            <div class="blog-detail-sumber blog-info-box">
+                                <span class="blog-tag-label"><i class="mdi mdi-calendar-edit"></i> Diubah Pada:</span>
+                                <p class="blog-ringkasan-text">
+                                    <%
+                                        const dateObjDiubah = new Date(blog.diubah_pada);
+                                        const dayDiubah = dateObjDiubah.getDate();
+                                        const monthDiubah = months[dateObjDiubah.getMonth()];
+                                        const yearDiubah = dateObjDiubah.getFullYear();
+                                        const hoursDiubah = String(dateObjDiubah.getHours()).padStart(2, '0');
+                                        const minutesDiubah = String(dateObjDiubah.getMinutes()).padStart(2, '0');
+                                        const formattedDateDiubah = `${dayDiubah} ${monthDiubah} ${yearDiubah} ${hoursDiubah}:${minutesDiubah}`;
+                                    %>
+                                    <%= formattedDateDiubah %>
+                                </p>
+                            </div>
+                            <% } %>
+                            <% if (blog.diverifikasi_pada) { %>
+                            <div class="blog-detail-sumber blog-info-box">
+                                <span class="blog-tag-label"><i class="mdi mdi-calendar-check"></i> Diverifikasi Pada:</span>
+                                <p class="blog-ringkasan-text">
+                                    <%
+                                        const dateObjDiverifikasi = new Date(blog.diverifikasi_pada);
+                                        const dayDiverifikasi = dateObjDiverifikasi.getDate();
+                                        const monthDiverifikasi = months[dateObjDiverifikasi.getMonth()];
+                                        const yearDiverifikasi = dateObjDiverifikasi.getFullYear();
+                                        const hoursDiverifikasi = String(dateObjDiverifikasi.getHours()).padStart(2, '0');
+                                        const minutesDiverifikasi = String(dateObjDiverifikasi.getMinutes()).padStart(2, '0');
+                                        const formattedDateDiverifikasi = `${dayDiverifikasi} ${monthDiverifikasi} ${yearDiverifikasi} ${hoursDiverifikasi}:${minutesDiverifikasi}`;
+                                    %>
+                                    <%= formattedDateDiverifikasi %>
+                                </p>
+                            </div>
+                            <% } %>
                         </div>
 
                         <div class="blog-detail-sumber mb-4">
@@ -123,270 +163,5 @@
         </div>
     </div>
 </div>
-
-<style>
-.blog-verification-info-card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border-left: 4px solid #10b981;
-    background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);
-}
-
-.blog-verification-info-card p {
-    margin: 0;
-    color: #1f2937;
-    font-size: 1rem;
-    line-height: 1.6;
-}
-
-.blog-verification-info-card strong {
-    color: #374151;
-    font-weight: 600;
-    min-width: 140px;
-    display: inline-block;
-}
-
-.blog-detail-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-}
-
-.blog-detail-header {
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.blog-detail-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1f2937;
-    line-height: 1.3;
-    margin-bottom: 0;
-}
-
-.blog-detail-tags {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.blog-tag-label {
-    font-weight: 600;
-    color: #374151;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    line-height: 1.6;
-}
-
-.blog-tag-label i {
-    color: #0F8EC8;
-}
-
-.blog-tag-item {
-    display: inline-block;
-    padding: 0.4rem 0.85rem;
-    background: #e0f2fe;
-    color: #0F8EC8;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: 1px solid rgba(15, 142, 200, 0.2);
-}
-
-.blog-detail-sumber {
-    background: #f8f9fa;
-    padding: 1.25rem;
-    border-radius: 12px;
-}
-
-.blog-sumber-list {
-    margin: 0.75rem 0 0 0;
-    padding-left: 1.5rem;
-    list-style: decimal;
-}
-
-.blog-sumber-list li {
-    margin-bottom: 0.5rem;
-    color: #374151;
-    line-height: 1.6;
-}
-
-.blog-ringkasan-text {
-    margin: 0.75rem 0 0 0;
-    color: #374151;
-    line-height: 1.6;
-}
-
-.blog-info-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
-
-.blog-info-box {
-    margin: 0;
-}
-
-.blog-detail-content {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.blog-content-header {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.blog-content-label {
-    font-weight: 700;
-    color: #1f2937;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.blog-content-label i {
-    color: #0F8EC8;
-    font-size: 1.25rem;
-}
-
-.blog-content-body {
-    color: #1f2937;
-    line-height: 1.8;
-    font-size: 1.05rem;
-}
-
-.blog-content-body p {
-    margin-bottom: 1.25rem;
-    color: #374151;
-}
-
-.blog-content-body img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 12px;
-    margin: 1.5rem 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.blog-content-body h1,
-.blog-content-body h2,
-.blog-content-body h3,
-.blog-content-body h4,
-.blog-content-body h5,
-.blog-content-body h6 {
-    color: #1f2937;
-    font-weight: 700;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-}
-
-.blog-content-body h1 { font-size: 2rem; }
-.blog-content-body h2 { font-size: 1.75rem; }
-.blog-content-body h3 { font-size: 1.5rem; }
-.blog-content-body h4 { font-size: 1.25rem; }
-
-.blog-content-body ul,
-.blog-content-body ol {
-    margin-bottom: 1.25rem;
-    padding-left: 2rem;
-}
-
-.blog-content-body li {
-    margin-bottom: 0.5rem;
-    color: #374151;
-}
-
-.blog-content-body blockquote {
-    border-left: 4px solid #0F8EC8;
-    padding-left: 1.5rem;
-    margin: 1.5rem 0;
-    color: #6b7280;
-    font-style: italic;
-}
-
-.blog-content-body code {
-    background: #f3f4f6;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.9em;
-    color: #dc2626;
-}
-
-.blog-content-body pre {
-    background: #1f2937;
-    color: #f9fafb;
-    padding: 1.25rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    margin: 1.5rem 0;
-}
-
-.blog-content-body pre code {
-    background: transparent;
-    color: inherit;
-    padding: 0;
-}
-
-@media (max-width: 767.98px) {
-    .blog-detail-title {
-        font-size: 1.5rem;
-        margin-bottom: 0;
-    }
-
-    .blog-detail-header {
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.75rem;
-    }
-
-    .blog-info-row {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
-
-    .blog-content-header {
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.875rem;
-    }
-
-    .blog-content-label {
-        font-size: 1rem;
-    }
-
-    .blog-content-body {
-        font-size: 1rem;
-        line-height: 1.7;
-    }
-
-    .blog-content-body h1 { font-size: 1.5rem; }
-    .blog-content-body h2 { font-size: 1.35rem; }
-    .blog-content-body h3 { font-size: 1.2rem; }
-    .blog-content-body h4 { font-size: 1.1rem; }
-
-    .blog-content-body p {
-        margin-bottom: 1rem;
-    }
-
-    .blog-content-body ul,
-    .blog-content-body ol {
-        padding-left: 1.5rem;
-        margin-bottom: 1rem;
-    }
-}
-</style>
 
 <%- include('../../../partials/scripts/__script-dashboard.ejs') %>

@@ -1885,3 +1885,164 @@ nav .pagination li.page-item:not(.disabled):focus-within > a.page-link {
         margin-bottom: 1rem;
     }
 }
+
+/* ============================================
+   Blog Status Update Modal Styling
+   ============================================ */
+/* Modal untuk Setujui (Hijau) */
+.blog-status-modal-valid {
+    border: 2px solid #10b981 !important;
+    border-radius: 12px !important;
+}
+
+.blog-status-modal-header-valid {
+    background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%) !important;
+    border-bottom: 2px solid #10b981 !important;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.blog-status-modal-header-valid .modal-title {
+    color: #065f46 !important;
+    font-weight: 700 !important;
+}
+
+.blog-status-modal-header-valid .close {
+    color: #065f46 !important;
+    opacity: 0.8;
+}
+
+.blog-status-modal-header-valid .close:hover {
+    opacity: 1;
+    color: #047857 !important;
+}
+
+.blog-status-modal-valid .modal-body {
+    background: #ffffff !important;
+}
+
+.blog-status-modal-valid .modal-footer {
+    background: #f9fafb !important;
+    border-top: 1px solid #d1fae5 !important;
+    border-radius: 0 0 10px 10px !important;
+}
+
+.blog-status-modal-valid #submitBtn.btn-success {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.blog-status-modal-valid #submitBtn.btn-success:hover {
+    background-color: #059669 !important;
+    border-color: #059669 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* Modal untuk Tolak (Merah) */
+.blog-status-modal-invalid {
+    border: 2px solid #ef4444 !important;
+    border-radius: 12px !important;
+}
+
+.blog-status-modal-header-invalid {
+    background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%) !important;
+    border-bottom: 2px solid #ef4444 !important;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.blog-status-modal-header-invalid .modal-title {
+    color: #991b1b !important;
+    font-weight: 700 !important;
+}
+
+.blog-status-modal-header-invalid .close {
+    color: #991b1b !important;
+    opacity: 0.8;
+}
+
+.blog-status-modal-header-invalid .close:hover {
+    opacity: 1;
+    color: #7f1d1d !important;
+}
+
+.blog-status-modal-invalid .modal-body {
+    background: #ffffff !important;
+}
+
+.blog-status-modal-invalid .modal-footer {
+    background: #f9fafb !important;
+    border-top: 1px solid #fee2e2 !important;
+    border-radius: 0 0 10px 10px !important;
+}
+
+.blog-status-modal-invalid #submitBtn.btn-danger {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+
+.blog-status-modal-invalid #submitBtn.btn-danger:hover {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Form control styling dalam modal */
+.blog-status-modal-valid .form-control:focus,
+.blog-status-modal-invalid .form-control:focus {
+    border-color: #e5e7eb !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.05) !important;
+}
+
+.blog-status-modal-valid textarea.form-control:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15) !important;
+}
+
+.blog-status-modal-invalid textarea.form-control:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Required field indicator */
+.blog-status-modal-valid label .text-danger,
+.blog-status-modal-invalid label .text-danger {
+    color: #ef4444 !important;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+/* Required field validation */
+.blog-status-modal-valid textarea.form-control:required:invalid,
+.blog-status-modal-invalid textarea.form-control:required:invalid {
+    border-color: #fca5a5 !important;
+}
+
+.blog-status-modal-valid textarea.form-control:required:valid,
+.blog-status-modal-invalid textarea.form-control:required:valid {
+    border-color: #d1d5db !important;
+}
+
+@media (max-width: 575.98px) {
+    .blog-status-modal-valid,
+    .blog-status-modal-invalid {
+        border-radius: 10px !important;
+    }
+    
+    .blog-status-modal-header-valid,
+    .blog-status-modal-header-invalid {
+        border-radius: 8px 8px 0 0 !important;
+        padding: 1rem !important;
+    }
+    
+    .blog-status-modal-header-valid .modal-title,
+    .blog-status-modal-header-invalid .modal-title {
+        font-size: 1.1rem !important;
+    }
+}

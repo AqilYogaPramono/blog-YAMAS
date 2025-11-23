@@ -12,13 +12,23 @@ router.get('/', authManajer, async (req, res) => {
         const limit = 20
         const offset = (page - 1) * limit
 
-        const rows = await Blog.getByStatusAndPegawai('Tidak-Valid', req.session.pegawaiId, limit, offset)
-        const data = rows.map((item) => ({
-            ...item,
-            dibuat_pada_display: new Date(item.dibuat_pada).toLocaleString('id-ID'),
-            diverifikasi_oleh_display: item.diverifikasi_oleh || '-'
-        }))
-        const totalData = await Blog.countByStatusAndPegawai('Tidak-Valid', req.session.pegawaiId)
+        const rows = await Blog.getByStatus('Tidak-Valid', limit, offset)
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+        const data = rows.map((item) => {
+            const dateObj = new Date(item.dibuat_pada)
+            const day = dateObj.getDate()
+            const month = months[dateObj.getMonth()]
+            const year = dateObj.getFullYear()
+            const hours = String(dateObj.getHours()).padStart(2, '0')
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0')
+            const dibuat_pada_display = `${day} ${month} ${year} ${hours}:${minutes}`
+            return {
+                ...item,
+                dibuat_pada_display,
+                diverifikasi_oleh_display: item.diverifikasi_oleh || '-'
+            }
+        })
+        const totalData = await Blog.countByStatus('Tidak-Valid')
         const totalHalaman = Math.ceil(totalData / limit)
 
         res.render('manajer/blog/blog-tidak-valid/index', {
@@ -38,7 +48,7 @@ router.get('/:id', authManajer, async (req, res) => {
     try {
         const {id} = req.params
         const pegawai = await Pegawai.getNama(req.session.pegawaiId)
-        const blog = await Blog.getByIdWithRelations(id, req.session.pegawaiId)
+        const blog = await Blog.getByIdWithRelationsForManajer(id)
 
         if (!blog) {
             req.flash('error', 'Blog tidak ditemukan')
