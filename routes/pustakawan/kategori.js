@@ -9,13 +9,48 @@ const router = express.Router()
 router.get('/', authPustakawan, async (req, res) => {
     try {
         const pegawai = await Pegawai.getNama(req.session.pegawaiId)
-        const data = await Kategori.getAll()
+        const page = parseInt(req.query.page) || 1
+        const limit = 20
+        const offset = (page - 1) * limit
+        const flashedKeyword = req.flash('keyword')[0]
 
-        res.render('pustakawan/kategori/index', {data, pegawai})
+        if (flashedKeyword) {
+            const data = await Kategori.searchByNama(flashedKeyword)
+            return res.render('pustakawan/kategori/index', {
+                data,
+                pegawai,
+                page: 1,
+                totalHalaman: 1,
+                keyword: flashedKeyword
+            })
+        }
+
+        const data = await Kategori.getKategori(limit, offset)
+        const totalData = await Kategori.countKategori()
+        const totalHalaman = Math.ceil(totalData / limit)
+
+        res.render('pustakawan/kategori/index', {
+            data,
+            pegawai,
+            page,
+            totalHalaman
+        })
     } catch(err) {
         console.error(err)
         req.flash('error', "Internal Server Error")
         return res.redirect('/pustakawan/kategori')
+    }
+})
+
+router.post('/search', authPustakawan, async (req, res) => {
+    try {
+        const { nama_kategori } = req.body
+        req.flash('keyword', nama_kategori || '')
+        res.redirect('/pustakawan/kategori')
+    } catch (err) {
+        console.error(err)
+        req.flash('error', 'Internal Server Error')
+        res.redirect('/pustakawan/kategori')
     }
 })
 
@@ -110,6 +145,11 @@ router.post('/update/:id', authPustakawan, async (req, res) => {
 router.post('/delete/:id', authPustakawan, async (req, res) => {
     try {
         const {id} = req.params
+
+        if (await Kategori.checkKategoriUsed(id)) {
+            req.flash('error', 'Kategori masih digunakan pada blog')
+            return res.redirect('/pustakawan/kategori')
+        }
 
         await Kategori.delete(id)
         req.flash('success', 'Data Berhasil Dihapus')

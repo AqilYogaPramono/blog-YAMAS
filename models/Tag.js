@@ -73,6 +73,51 @@ class Tag {
             throw err
         }
     }
+
+    static async searchByNama(nama) {
+        try {
+            const [rows] = await connection.query(
+                `SELECT * FROM tag WHERE nama_tag LIKE ? ORDER BY id ASC`,
+                [`%${nama}%`]
+            )
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getTag(limit, offset) {
+        try {
+            const [rows] = await connection.query(
+                `SELECT * FROM tag ORDER BY id ASC LIMIT ? OFFSET ?`,
+                [limit, offset]
+            )
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async countTag() {
+        try {
+            const [rows] = await connection.query(`SELECT COUNT(id) AS total FROM tag`)
+            return rows[0].total
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async checkTagUsed(id) {
+        try {
+            const [rows] = await connection.query(
+                `SELECT COUNT(id_blog) AS total FROM tag_blog WHERE id_tag = ?`,
+                [id]
+            )
+            return rows[0].total > 0
+        } catch (err) {
+            throw err
+        }
+    }
 }
 
 module.exports = Tag

@@ -73,6 +73,51 @@ class Kategori {
             throw err
         }
     }
+
+    static async searchByNama(nama) {
+        try {
+            const [rows] = await connection.query(
+                `SELECT * FROM kategori WHERE nama_kategori LIKE ? ORDER BY id ASC`,
+                [`%${nama}%`]
+            )
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getKategori(limit, offset) {
+        try {
+            const [rows] = await connection.query(
+                `SELECT * FROM kategori ORDER BY id ASC LIMIT ? OFFSET ?`,
+                [limit, offset]
+            )
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async countKategori() {
+        try {
+            const [rows] = await connection.query(`SELECT COUNT(id) AS total FROM kategori`)
+            return rows[0].total
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async checkKategoriUsed(id) {
+        try {
+            const [rows] = await connection.query(
+                `SELECT COUNT(id_blog) AS total FROM kategori_blog WHERE id_kategori = ?`,
+                [id]
+            )
+            return rows[0].total > 0
+        } catch (err) {
+            throw err
+        }
+    }
 }
 
 module.exports = Kategori
