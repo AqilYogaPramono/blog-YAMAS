@@ -410,6 +410,134 @@ class Blog {
             throw err
         }
     }
+
+    static async getAllValidOrderedByVerified(limit = 50, offset = 0) {
+        try {
+            const size = Number(limit) || 50
+            const start = Number(offset) || 0
+
+            const [rows] = await connection.query(
+                `SELECT id, tautan, judul, foto_cover, ringkasan, nama_pembuat, dibuat_pada 
+                 FROM blog 
+                 WHERE status = 'Valid' 
+                 ORDER BY diverifikasi_pada DESC, dibuat_pada DESC 
+                 LIMIT ? OFFSET ?`,
+                [size, start]
+            )
+
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getBySlugWithRelations(tautan) {
+        try {
+            const [blogRows] = await connection.query(
+                'SELECT * FROM blog WHERE tautan = ? AND status = "Valid" LIMIT 1',
+                [tautan]
+            )
+
+            const blog = blogRows[0]
+            const id = blog.id
+            blog.foto_cover = Blog.normalizeImagePath(blog.foto_cover)
+
+            const [kategoriRows] = await connection.query(
+                `SELECT k.id, k.nama_kategori 
+                 FROM kategori k 
+                 INNER JOIN kategori_blog kb ON k.id = kb.id_kategori 
+                 WHERE kb.id_blog = ?`,
+                [id]
+            )
+
+            const [tagRows] = await connection.query(
+                `SELECT t.id, t.nama_tag 
+                 FROM tag t 
+                 INNER JOIN tag_blog tb ON t.id = tb.id_tag 
+                 WHERE tb.id_blog = ?`,
+                [id]
+            )
+
+            blog.kategori = kategoriRows
+            blog.tag = tagRows
+
+            return blog
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getRandomRelatedByBlogId(idBlog) {
+        try {
+
+            const [rows] = await connection.query(
+                `SELECT DISTINCT b.id, b.tautan, b.judul, b.foto_cover, b.dibuat_pada
+                 FROM blog b
+                 LEFT JOIN tag_blog tb ON b.id = tb.id_blog
+                 LEFT JOIN kategori_blog kb ON b.id = kb.id_blog
+                 WHERE b.status = 'Valid'
+                   AND b.id != ?
+                   AND (
+                        tb.id_tag IN (SELECT id_tag FROM tag_blog WHERE id_blog = ?)
+                        OR kb.id_kategori IN (SELECT id_kategori FROM kategori_blog WHERE id_blog = ?)
+                   )
+                 ORDER BY RAND()
+                 LIMIT 5`,
+                [idBlog, idBlog, idBlog]
+            )
+
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getValidByTagId(idTag, limit = 50, offset = 0) {
+        try {
+            const size = Number(limit) || 50
+            const start = Number(offset) || 0
+
+            const [rows] = await connection.query(
+                `SELECT b.id, b.tautan, b.judul, b.foto_cover, b.ringkasan, 
+                        b.nama_pembuat, b.dibuat_pada
+                 FROM blog b
+                 INNER JOIN tag_blog tb ON b.id = tb.id_blog
+                 WHERE b.status = 'Valid' AND tb.id_tag = ?
+                 ORDER BY b.diverifikasi_pada DESC, b.dibuat_pada DESC
+                 LIMIT ? OFFSET ?`,
+                [idTag, size, start]
+            )
+
+            return rows
+        } catch (err) {
+            throw err
+        }
+    }
+
+    static async getValidByKategoriId(idKategori, limit = 50, offset = 0) {
+        try {
+            const size = Number(limit) || 50
+            const start = Number(offset) || 0
+
+            const [rows] = await connection.query(
+                `SELECT b.id, b.tautan, b.judul, b.foto_cover, b.ringkasan, 
+                        b.nama_pembuat, b.dibuat_pada
+                 FROM blog b
+                 INNER JOIN kategori_blog kb ON b.id = kb.id_blog
+                 WHERE b.status = 'Valid' AND kb.id_kategori = ?
+                 ORDER BY b.diverifikasi_pada DESC, b.dibuat_pada DESC
+                 LIMIT ? OFFSET ?`,
+                [idKategori, size, start]
+            )
+
+            return rows.map((row) => ({
+                ...row,
+                foto_cover: Blog.normalizeImagePath(row.foto_cover)
+            }))
+        } catch (err) {
+            throw err
+        }
+    }
 }
 
 module.exports = Blog
